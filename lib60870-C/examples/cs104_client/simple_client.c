@@ -82,14 +82,14 @@ asduReceivedHandler(void *parameter, int address, CS101_ASDU asdu)
         for (i = 0; i < CS101_ASDU_getNumberOfElements(asdu); i++)
         {
 
-            MeasuredValueScaledWithCP56Time2a io =
-                (MeasuredValueScaledWithCP56Time2a)CS101_ASDU_getElement(asdu, i);
+            ParameterFloatValue io =
+                (ParameterFloatValue)CS101_ASDU_getElement(asdu, i);
 
             printf("    IOA: %i value: %f \n ",
                    InformationObject_getObjectAddress((InformationObject)io),
-                   ParameterFloatValue_getValue((MeasuredValueScaled)io)); // чтобы обрабатывать тип float
+                   ParameterFloatValue_getValue((ParameterFloatValue)io)); // чтобы обрабатывать тип float
 
-            MeasuredValueScaledWithCP56Time2a_destroy(io);
+            ParameterFloatValue_destroy(io);
         }
     }
     else if (CS101_ASDU_getTypeID(asdu) == C_TS_TA_1)
@@ -141,20 +141,13 @@ int main(int argc, char **argv)
 
         CS104_Connection_sendStartDT(con);
 
-        Thread_sleep(100000); // задет время работы клиента и дает возможность в это время принимать данные
+        Thread_sleep(10000); // задет время работы клиента и дает возможность в это время принимать данные
+        while (1)
+        {
+            /* code */
+        }
 
-        CS104_Connection_sendInterrogationCommand(con, CS101_COT_ACTIVATION, 1, IEC60870_QOI_STATION);
-
-        Thread_sleep(5000);
-
-        // struct sCP56Time2a testTimestamp;
-        // CP56Time2a_createFromMsTimestamp(&testTimestamp, Hal_getTimeInMs());
-
-        // CS104_Connection_sendTestCommandWithTimestamp(con, 1, 0x4938, &testTimestamp);
-
-        // printf("Wait ...\n");
-
-        // Thread_sleep(1000);
+        // CS104_Connection_sendInterrogationCommand(con, CS101_COT_ACTIVATION, 1, IEC60870_QOI_STATION);
     }
     else
         printf("Connect failed!\n");

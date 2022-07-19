@@ -9,6 +9,10 @@
 #include "hal_thread.h"
 #include "hal_time.h"
 
+//для рандома
+#include <time.h>
+#include <stdlib.h>
+
 static bool running = true;
 
 void sigint_handler(int signalId)
@@ -42,6 +46,34 @@ connectionEventHandler(void *parameter, IMasterConnection con, CS104_PeerConnect
     {
         printf("Connection deactivated (%p)\n", con);
     }
+}
+
+//функция генерации данных для перменных
+float greenhouse_variables(float value, float top, float down, float step)
+{
+    srand(time(NULL)); // Initialization, should only be called once.
+    if (rand() % 2)
+    {
+        value += step;
+    }
+    else
+    {
+        value -= step;
+    }
+
+   if(value >= top)
+   {
+       value -= step;
+   }
+
+   if(value <= down)
+   {
+       value += step;
+   }
+
+    return value;
+
+    
 }
 
 int main(int argc, char **argv)
@@ -81,42 +113,31 @@ int main(int argc, char **argv)
     int16_t scaledValue = 0;
     float scaledValue1 = 1000.1;
 
+    float var[3][4] = {{30, 25, 35, 0.01}, {60, 30, 90, 0.05}, {760, 650, 1030, 0.5}}; //{{переменная, нижний_край, верхний_край, шаг_изменения}}
+
     while (running)
     {
 
-        Thread_sleep(500);
+        Thread_sleep(5000); // время задержки отправки данных
 
-        CS101_ASDU newAsdu = CS101_ASDU_create(alParams, false, CS101_COT_PERIODIC, 0, 1, false, false);
+        for(int i = 0; i < 3; i++)
+        {
+            CS101_ASDU newAsdu = CS101_ASDU_create(alParams, false, CS101_COT_PERIODIC, 0, 1, false, false);
+            var[i][0] = greenhouse_variables(var[i][0], var[i][1], var[i][2], var[i][3]);
 
-        InformationObject io = (InformationObject)MeasuredValueScaled_create(NULL, 11, scaledValue, IEC60870_QUALITY_GOOD); // какой-то интовый тип данных
+            InformationObject io = (InformationObject)ParameterFloatValue_create(NULL, 110 + i, var[i][0], IEC60870_QUALITY_GOOD); // тип данных float
 
-        scaledValue += 2;
+            CS101_ASDU_addInformationObject(newAsdu, io);
 
-        CS101_ASDU_addInformationObject(newAsdu, io);
+            InformationObject_destroy(io);
 
-        InformationObject_destroy(io);
+            /* Add ASDU to slave event queue */
+            CS104_Slave_enqueueASDU(slave, newAsdu);
 
-        /* Add ASDU to slave event queue */
-        CS104_Slave_enqueueASDU(slave, newAsdu);
+            CS101_ASDU_destroy(newAsdu);
+        }
 
-        CS101_ASDU_destroy(newAsdu);
-
-        //------------------------------//
-
-        CS101_ASDU newAsdu1 = CS101_ASDU_create(alParams, false, CS101_COT_PERIODIC, 0, 1, false, false);
-
-        io = (InformationObject)ParameterFloatValue_create(NULL, 111, scaledValue1, IEC60870_QUALITY_GOOD); // тип данных float
-
-        scaledValue1 += 2.2;
-
-        CS101_ASDU_addInformationObject(newAsdu1, io);
-
-        InformationObject_destroy(io);
-
-        /* Add ASDU to slave event queue */
-        CS104_Slave_enqueueASDU(slave, newAsdu1);
-
-        CS101_ASDU_destroy(newAsdu1);
+        
     }
 
     CS104_Slave_stop(slave);
