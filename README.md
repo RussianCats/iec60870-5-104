@@ -11,3 +11,6 @@ git add --all  && git commit -m "" && git push origin main <br>
 
 для ssh <br>
 ssh-keygen -t rsa -C "mail вашего гитхаба"<br>
+
+#ссылки
+ <h4>https://github.com/mz-automation/lib60870 </h4>
