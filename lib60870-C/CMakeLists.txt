@@ -91,11 +91,22 @@ set(API_HEADERS
 
 if(BUILD_EXAMPLES)
 	add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/examples)
+	#создает директорию
+	file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/examples/generator)
 endif(BUILD_EXAMPLES)
+
+#копирует файл
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/examples/generator/gen.py
+     DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/examples/generator)
+
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/examples/generator/gen.txt
+     DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/examples/generator)
 
 if(BUILD_TESTS)
 	add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/tests)
 endif(BUILD_TESTS)
+
+
 
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/src)
 
@@ -119,3 +130,9 @@ SET(CPACK_COMPONENTS_ALL Libraries Development Applications)
 INCLUDE(CPack)
  
 ENDIF(EXISTS "${CMAKE_ROOT}/Modules/CPack.cmake")
+
+# add_custom_command(TARGET ${CMAKE_PROJECT_NAME}  POST_BUILD
+#         COMMAND ${CMAKE_COMMAND} -E copy_directory
+#                 ${CMAKE_CURRENT_SOURCE_DIR}/examples/generator
+#                 ${CMAKE_CURRENT_BINARY_DIR}/examples/generator)
+

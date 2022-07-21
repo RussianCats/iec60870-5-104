@@ -135,24 +135,15 @@ int main(int argc, char **argv)
     /* uncomment to log messages */
     // CS104_Connection_setRawMessageHandler(con, rawMessageHandler, NULL);
 
-    if (CS104_Connection_connect(con))
+    while (CS104_Connection_connect(con))
     {
         printf("Connected!\n");
+        // Thread_sleep(1000);
 
         CS104_Connection_sendStartDT(con);
 
-        Thread_sleep(10000); // задет время работы клиента и дает возможность в это время принимать данные
-        while (1)
-        {
-            /* code */
-        }
-
-        // CS104_Connection_sendInterrogationCommand(con, CS101_COT_ACTIVATION, 1, IEC60870_QOI_STATION);
+        // Thread_sleep(10000);
     }
-    else
-        printf("Connect failed!\n");
-
-    Thread_sleep(1000);
 
     CS104_Connection_destroy(con);
 

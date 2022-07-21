@@ -48,34 +48,58 @@ connectionEventHandler(void *parameter, IMasterConnection con, CS104_PeerConnect
     }
 }
 
-//функция генерации данных для перменных
-float greenhouse_variables(float value, float top, float down, float step)
+// //функция генерации данных для перменных
+// float greenhouse_variables(float value, float top, float down, float step)
+// {
+//     srand(time(NULL)); // Initialization, should only be called once.
+//     if (rand() % 2)
+//     {
+//         value += step;
+//     }
+//     else
+//     {
+//         value -= step;
+//     }
+
+//     if (value >= top)
+//     {
+//         value -= step;
+//     }
+
+//     if (value <= down)
+//     {
+//         value += step;
+//     }
+
+//     return value;
+// }
+
+void generation_python(float arr_value[][3])
 {
-    srand(time(NULL)); // Initialization, should only be called once.
-    if (rand() % 2)
+    system("cd build/examples/generator; python3 gen.py");
+    int i = 0;
+    float num;
+    FILE *f;
+    f = fopen("build/examples/generator/gen.txt", "r");
+
+    for (int i = 0; i < 96; i++)
     {
-        value += step;
-    }
-    else
-    {
-        value -= step;
-    }
+        for (int j = 0; j < 3; j++)
+        {
+            fscanf(f, "%f", &num);
+            arr_value[i][j] = num;
+            // printf("%f \n", num);
+        }
+    };
 
-   if(value >= top)
-   {
-       value -= step;
-   }
+    // while (fscanf(f, "%f", &num) >= 1)
+    // {
 
-   if(value <= down)
-   {
-       value += step;
-   }
-
-    return value;
-
-    
+    //     arr_value[i][i % 3] = num;
+    //     i++;
+    //     printf("%f \n", num); //вывод в консоль записываемого элемента
+    // }
 }
-
 int main(int argc, char **argv)
 {
     /* Add Ctrl-C handler */
@@ -110,34 +134,35 @@ int main(int argc, char **argv)
         goto exit_program;
     }
 
-    int16_t scaledValue = 0;
-    float scaledValue1 = 1000.1;
+    float arr_value[96][3];
 
-    float var[3][4] = {{30, 25, 35, 0.01}, {60, 30, 90, 0.05}, {760, 650, 1030, 0.5}}; //{{переменная, нижний_край, верхний_край, шаг_изменения}}
+    // float var[3][4] = {{30, 25, 35, 0.01}, {60, 30, 90, 0.05}, {760, 650, 1030, 0.5}}; //{{переменная, нижний_край, верхний_край, шаг_изменения}}
 
     while (running)
     {
-
-        Thread_sleep(5000); // время задержки отправки данных
-
-        for(int i = 0; i < 3; i++)
+        generation_python(arr_value);
+        printf("\n\nНОВЫЕ 24 ЧАСА\n\n");
+        for (int i = 0; i < 96; i++)
         {
-            CS101_ASDU newAsdu = CS101_ASDU_create(alParams, false, CS101_COT_PERIODIC, 0, 1, false, false);
-            var[i][0] = greenhouse_variables(var[i][0], var[i][1], var[i][2], var[i][3]);
 
-            InformationObject io = (InformationObject)ParameterFloatValue_create(NULL, 110 + i, var[i][0], IEC60870_QUALITY_GOOD); // тип данных float
+            for (int j = 0; j < 3; j++)
+            {
+                CS101_ASDU newAsdu = CS101_ASDU_create(alParams, false, CS101_COT_PERIODIC, 0, 1, false, false);
+                // var[i][0] = greenhouse_variables(var[i][0], var[i][1], var[i][2], var[i][3]);
 
-            CS101_ASDU_addInformationObject(newAsdu, io);
+                InformationObject io = (InformationObject)ParameterFloatValue_create(NULL, 110 + j, arr_value[i][j], IEC60870_QUALITY_GOOD); // тип данных float
 
-            InformationObject_destroy(io);
+                CS101_ASDU_addInformationObject(newAsdu, io);
 
-            /* Add ASDU to slave event queue */
-            CS104_Slave_enqueueASDU(slave, newAsdu);
+                InformationObject_destroy(io);
 
-            CS101_ASDU_destroy(newAsdu);
+                /* Add ASDU to slave event queue */
+                CS104_Slave_enqueueASDU(slave, newAsdu);
+
+                CS101_ASDU_destroy(newAsdu);
+                Thread_sleep(1000); // время задержки данных
+            }
         }
-
-        
     }
 
     CS104_Slave_stop(slave);
