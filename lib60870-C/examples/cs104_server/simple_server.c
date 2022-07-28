@@ -91,7 +91,7 @@ void generation_python(float arr_value[][3])
             // printf("%f \n", num);
         }
     };
-
+    fclose(f);
     // while (fscanf(f, "%f", &num) >= 1)
     // {
 
