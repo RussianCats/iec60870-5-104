@@ -96,11 +96,11 @@ if(BUILD_EXAMPLES)
 endif(BUILD_EXAMPLES)
 
 #копирует файл
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/examples/generator/gen.py
-     DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/examples/generator)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/examples/cs104_server/gen.py
+     DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/examples/cs104_server)
 
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/examples/generator/gen.txt
-     DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/examples/generator)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/examples/cs104_server/gen.txt
+     DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/examples/cs104_server)
 
 if(BUILD_TESTS)
 	add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/tests)

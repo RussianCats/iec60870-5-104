@@ -1,6 +1,4 @@
 #include "cs104_connection.h"
-#include "hal_time.h"
-#include "hal_thread.h"
 
 #include <stdio.h>
 #include <stdlib.h>

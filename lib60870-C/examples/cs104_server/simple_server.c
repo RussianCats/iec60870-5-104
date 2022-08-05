@@ -7,7 +7,6 @@
 #include "cs104_slave.h"
 
 #include "hal_thread.h"
-#include "hal_time.h"
 
 //для рандома
 #include <time.h>
@@ -76,11 +75,11 @@ connectionEventHandler(void *parameter, IMasterConnection con, CS104_PeerConnect
 
 void generation_python(float arr_value[][3])
 {
-    system("cd build/examples/generator; python3 gen.py");
+    system("python3 gen.py");
     int i = 0;
     float num;
     FILE *f;
-    f = fopen("build/examples/generator/gen.txt", "r");
+    f = fopen("gen.txt", "r");
 
     for (int i = 0; i < 96; i++)
     {
