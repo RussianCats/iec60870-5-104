@@ -3,7 +3,7 @@ include_directories(
 )
 
 set(example_SRCS
-   simple_client.c
+   simple_client.cpp
 )
 
 IF(WIN32)
