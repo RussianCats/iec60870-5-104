@@ -80,7 +80,6 @@ void generation_python(float arr_value[][3])
     float num;
     FILE *f;
     f = fopen("gen.txt", "r");
-
     for (int i = 0; i < 96; i++)
     {
         for (int j = 0; j < 3; j++)
@@ -91,6 +90,8 @@ void generation_python(float arr_value[][3])
         }
     };
     fclose(f);
+
+    //fclose(file);
     // while (fscanf(f, "%f", &num) >= 1)
     // {
 
@@ -130,26 +131,49 @@ int main(int argc, char **argv)
     if (CS104_Slave_isRunning(slave) == false)
     {
         printf("Starting server failed!\n");
-        goto exit_program;
+        CS104_Slave_destroy(slave);
+
+        Thread_sleep(10);
+        exit(0);
     }
 
     float arr_value[96][3];
-
+    float numWS[2];
     // float var[3][4] = {{30, 25, 35, 0.01}, {60, 30, 90, 0.05}, {760, 650, 1030, 0.5}}; //{{переменная, нижний_край, верхний_край, шаг_изменения}}
 
+    
     while (running)
     {
         generation_python(arr_value);
         printf("\n\nНОВЫЕ 24 ЧАСА\n\n");
+        FILE *f2;
+        float num1, num2;
+        f2 = fopen("/home/kali/iGrids/iec60870-5-104/lib60870-C/examples/cs104_server/example.txt", "r");
+        float buf;
         for (int i = 0; i < 96; i++)
         {
+            fscanf(f2, "%f%f", &num1, &num2);
+            printf("%f %f", num1, num2);
 
-            for (int j = 0; j < 3; j++)
+            for (int j = 0; j < 5; j++)
             {
                 CS101_ASDU newAsdu = CS101_ASDU_create(alParams, false, CS101_COT_PERIODIC, 0, 1, false, false);
                 // var[i][0] = greenhouse_variables(var[i][0], var[i][1], var[i][2], var[i][3]);
-
-                InformationObject io = (InformationObject)ParameterFloatValue_create(NULL, 110 + j, arr_value[i][j], IEC60870_QUALITY_GOOD); // тип данных float
+                //InformationObject io;
+                //if (j < 3)
+                //{
+                if (j < 3)
+                    buf = arr_value[i][j];
+                else if (j == 4)
+                    buf = num1;
+                else buf = num2;
+                InformationObject io = (InformationObject)ParameterFloatValue_create(NULL, 110 + j, buf, IEC60870_QUALITY_GOOD); // тип данных float
+                //}
+                /*else
+                {
+                    printf("%f\n", numWS[0]);
+                    InformationObject io = (InformationObject)ParameterFloatValue_create(NULL, 110 + j, numWS[j - 3], IEC60870_QUALITY_GOOD); // тип данных float
+                }*/
 
                 CS101_ASDU_addInformationObject(newAsdu, io);
 
@@ -162,12 +186,11 @@ int main(int argc, char **argv)
                 Thread_sleep(1000); // время задержки данных
             }
         }
+        fclose(f2);
     }
 
     CS104_Slave_stop(slave);
 
-exit_program:
-    CS104_Slave_destroy(slave);
+//exit_program:
 
-    Thread_sleep(10);
 }
