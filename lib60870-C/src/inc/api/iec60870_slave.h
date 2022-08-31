@@ -25,7 +25,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "iec60870_common.h"
-#include "tls_config.h"
+#include "/home/kali/iGrids/iec60870-5-104/lib60870-C/src/hal/inc/tls_config.h"
 
 #ifdef __cplusplus
 extern "C" {
